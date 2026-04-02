@@ -1,4 +1,5 @@
-const { token, owners, prefix } = require("./config.json");
+require("dotenv").config();
+const { owners, prefix } = require("./config.json");
 const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require("discord.js");
 const fs = require('fs');
 const Discord = require('discord.js');
@@ -8,6 +9,15 @@ const { QuickDB } = require("quick.db");
 const { GlobalFonts } = require("canvas-constructor/napi-rs");
 const ms = require("ms");
 const colors = require("colors");
+
+// ============================================
+// 🔐 التوكن من متغير البيئة (Render)
+// ============================================
+const token = process.env.TOKEN;
+if (!token) {
+  console.error("❌ TOKEN is not defined in environment variables!");
+  process.exit(1);
+}
 
 GlobalFonts.registerFromPath(process.cwd() + "./Al Qabas Bold.ttf", "cairo");
 GlobalFonts.registerFromPath(process.cwd() + "./Emojis.ttf", "Emojis");
@@ -64,10 +74,7 @@ for (const file of commandFiles) {
   }
 }
 
-
 require('./helpers/gif-shop-system');
-
-
 
 client.on("ready", () => {
   const botId = client.user.id;
@@ -75,6 +82,7 @@ client.on("ready", () => {
   console.log(`Client Ready Bot On ${client.user.tag}`.red);
   console.log(`https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot`.bgGreen);
 });
+
 client.on('ready', async () => {
   try {
     let activity = await dbq.get(`activity_${client.user.id}`);
@@ -87,13 +95,11 @@ client.on('ready', async () => {
     }
     client.user.setActivity(activity);
     console.log(`Games Bot`.green);
-     
   } catch (error) {
     console.log('Error In The Activity:', error.message);
   }
   setInterval(async () => {
     try {
-     
       if (!client.isReady() || !client.user || client.ws.status !== 0) {
         return;
       }
@@ -108,7 +114,6 @@ client.on('ready', async () => {
           url: "https://www.twitch.tv/x3mbr" 
         };
       }
-      
      
       if (existActivity && 
           existActivity.name === activity.name && 
@@ -123,7 +128,6 @@ client.on('ready', async () => {
   }, 300000);
 });
 
-
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
   if (message.content === `<@${client.user.id}>`) {
@@ -131,11 +135,10 @@ client.on('messageCreate', async message => {
   }
 });
 
-
 client.on("guildCreate", async (guild) => {
   try {
     const owner = await guild.fetchOwner();
-    let privetch = client.channels.cache.get("1350446105678053446"); // Channel ID to send the join message
+    let privetch = client.channels.cache.get("1350446105678053446");
     let addembed = new EmbedBuilder()
       .setTitle("Joined new guild 🛒")
       .setDescription(`**Guild name:** ${guild.name} \n **Members:** ${guild.memberCount} \n **Guild ID:** ${guild.id} \n **Owner:** <@${owner.user.id}>`)
@@ -151,7 +154,7 @@ client.on("guildCreate", async (guild) => {
 
 client.on("guildDelete", async (guild) => {
   try {
-    let privetch = client.channels.cache.get("1350446105678053446"); // Channel ID to send the leave message
+    let privetch = client.channels.cache.get("1350446105678053446");
     const owner = await guild.fetchOwner();
     let removeembed = new EmbedBuilder()
       .setTitle("Left a guild 🛒")
@@ -165,7 +168,6 @@ client.on("guildDelete", async (guild) => {
     console.error('An error occurred while sending the leave message:', error);
   }
 });
-
 
 process.on("uncaughtException", error => {
   console.log(error);
@@ -182,13 +184,14 @@ process.on("rejectionHandled", error => {
   return;
 });
 
-
-require("dotenv").config();
 require('events').EventEmitter.defaultMaxListeners = 120;
+
+// ============================================
+// 🔐 تسجيل الدخول باستخدام التوكن من متغير البيئة
+// ============================================
 client.login(token);
 
-process.on("unhandledRejection", (reason, promise) => { return })
- process.on("uncaughtException", (err, origin) => { return })
- process.on('uncaughtExceptionMonitor', (err, origin) => { return });
- process.on('multipleResolves', (type, promise, reason) => { return })
- 
+process.on("unhandledRejection", (reason, promise) => { return });
+process.on("uncaughtException", (err, origin) => { return });
+process.on('uncaughtExceptionMonitor', (err, origin) => { return });
+process.on('multipleResolves', (type, promise, reason) => { return });
